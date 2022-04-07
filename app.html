@@ -43,6 +43,37 @@
         </div>
         <div class="row">
           <div class="col">
+            <h4>Seleccione el primer parámetro:</h4>
+            <div>
+              <select id="selection" name="select">
+                <option value="cerebeloMB" selected>Cerebelo Materia Blanca</option>
+                <option value="cerebeloMG" >Cerebelo Materia Gris</option>
+                <option value="hipocampo">Hipocampo</option>
+                <option value="nucleoCaudado">Núcleo caudado</option>
+                <option value="putamen">Putamen</option>
+                <option value="amigdala">Amigdala</option>
+              </select>
+            </div>
+          </div>
+          <div class="col">
+            <h4>Seleccione el segundo parámetro:</h4>
+            <div>
+              <select id="selection2" name="select">
+                <option value="cerebeloMB">Cerebelo Materia Blanca</option>
+                <option value="cerebeloMG" >Cerebelo Materia Gris</option>
+                <option value="hipocampo" selected>Hipocampo</option>
+                <option value="nucleoCaudado">Núcleo caudado</option>
+                <option value="putamen" >Putamen</option>
+                <option value="amigdala"  >Amigdala</option>
+              </select>
+            </div>
+          </div>
+          <div class="col">
+            <button type="button" class="btn btn-primary" onclick="selectDataToUse()">Graficar</button>
+          </div>
+      </div>
+        <div class="row">
+          <div class="col">
             <!--viz-->
             <div id="chart"></div>
           </div>
@@ -76,6 +107,12 @@
 
           let timeline = d3.select("#timeline")
 
+              var valSel1 = document.getElementById("selection").value
+              var valSel2 = document.getElementById("selection2").value
+              console.log(valSel1)
+              console.log(valSel2)
+
+
               var margin = {top: 20, right: 0, bottom: 50, left: 85},
                   svg_dx = 500, 
                   svg_dy = 400,
@@ -90,18 +127,84 @@
               
               let selected = undefined;
 
+              function selectDataToUse(){
+                valSel1 = document.getElementById("selection").value
+                valSel2 = document.getElementById("selection2").value
+              }
+
               var svg = d3.select("#chart")
                           .append("svg")
                           .attr("width", svg_dx)
                           .attr("height", svg_dy);
 
+              
+
               d3.csv("data.csv", d => {
 
-                  var n = d.length;
-
-                  var d_extent_x = d3.extent(d, d => +d.BIRTH_peso5),
-                      d_extent_y = d3.extent(d, d => +d.BIRTH_talla5);
+                  var d_extent_x;
+                  var d_extent_y;
+                  var circles;
                   
+                  var n = d.length;
+                  
+                
+                  function evaluateExtentX (value) {
+                    
+                    if (value == "cerebeloMB") {
+                      d_extent_x = d3.extent(d, d => +d.aseg_cerveletWMtotal)
+                      
+                    }
+                    else if (value == "cerebeloMG") {
+                      
+                      d_extent_x = d3.extent(d, d => +d.aseg_cerveletGMtotal)
+                    }
+                    else if (value == "hipocampo") {
+                      
+                      d_extent_x = d3.extent(d, d => +d.aseg_hipocampototal)
+                    }
+                    else if (value == "nucleoCaudado") {
+                      d_extent_x = d3.extent(d, d => +d.aseg_caudatetotal)
+                    }
+                    else if (value == "putamen") {
+                      
+                      d_extent_x = d3.extent(d, d => +d.aseg_putamentotal)
+                    }
+                    else if (value == "amigdala") {
+                      
+                      d_extent_x = d3.extent(d, d => +d.aseg_amigdalatotal)
+                    }
+                  }
+
+                  function evaluateExtentY (value) {
+                    
+                    if (value == "cerebeloMB") {
+                      d_extent_y = d3.extent(d, d => +d.aseg_cerveletWMtotal)
+                      
+          
+                    }
+                    else if (value == "cerebeloMG") {
+                      
+                      d_extent_y = d3.extent(d, d => +d.aseg_cerveletGMtotal)
+                    }
+                    else if (value == "hipocampo") {
+                      
+                      d_extent_y = d3.extent(d, d => +d.aseg_hipocampototal)
+                    }
+                    else if (value == "nucleoCaudado") {
+                      d_extent_y = d3.extent(d, d => +d.aseg_caudatetotal)
+                    }
+                    else if (value == "putamen") {
+                      
+                      d_extent_y = d3.extent(d, d => +d.aseg_putamentotal)
+                    }
+                    else if (value == "amigdala") {
+                      
+                      d_extent_y = d3.extent(d, d => +d.aseg_amigdalatotal)
+                    }
+                  }
+                  evaluateExtentX(valSel1)
+                  evaluateExtentY(valSel2)
+
                   x.domain(d_extent_x);
                   y.domain(d_extent_y);
 
@@ -119,7 +222,7 @@
                     .call(axis_y);
 
                   var color = d3.scaleOrdinal()
-                    .domain(["1", "2"])
+                    .domain(["0", "1"])
                     .range([ "#001AFF", "#DD00FF"])
 
                   d3.select("#axis_x")
@@ -132,17 +235,64 @@
                     .attr("transform", "rotate(-90) translate(-20, 15)")
                     .text("Estatura recién nacido (mm)");
 
-                  var circles = svg.append("g")
+                 circles = svg.append("g")
                                   .selectAll("circle")
                                   .data(d)
                                   .enter()
                                   .append("circle")
                                   .attr("r", 5)
-                                  .attr("cx", (d) => x(+d.BIRTH_peso5))
-                                  .attr("cy", (d) => y(+d.BIRTH_talla5))
+                                  //.attr("cx", (d) => x(+d.aseg_cerveletWMtotal))
+                                  //.attr("cy", (d) => y(+d.aseg_cerveletGMtotal))
                                   .attr("class", "non_brushed")
-                                  .style("fill", function (d) { return color(d.BIRTH_sexo5) });
-
+                                  .style("fill", function (d) { return color(d.Pretermino) });
+                  
+                  
+                  
+                  function evaluateCirclesCx (value) {
+                    if (value == "cerebeloMB") {
+                      circles.attr("cx", (d) => x(+d.aseg_cerveletWMtotal))
+                    }
+                    else if (value == "cerebeloMG") {
+                      circles.attr("cx", (d) => x(+d.aseg_cerveletGMtotal))
+                    }
+                    else if (value == "hipocampo") {
+                      circles.attr("cx", (d) => x(+d.aseg_hipocampototal))
+                    }
+                    else if (value == "nucleoCaudado") {
+                      circles.attr("cx", (d) => x(+d.aseg_caudatetotal))
+                    }
+                    else if (value == "putamen") {
+                      circles.attr("cx", (d) => x(+d.aseg_putamentotal))
+                    }
+                    else if (value == "amigdala") {
+                      circles.attr("cx", (d) => x(+d.aseg_amigdalatotal))
+                    }
+                    
+                  }
+                  function evaluateCirclesCy (value) {
+                    if (value == "cerebeloMB") {
+                      circles.attr("cy", (d) => y(+d.aseg_cerveletWMtotal))
+                    }
+                    else if (value == "cerebeloMG") {
+                      circles.attr("cy", (d) => y(+d.aseg_cerveletGMtotal))
+                    }
+                    else if (value == "hipocampo") {
+                      circles.attr("cy", (d) => y(+d.aseg_hipocampototal))
+                    }
+                    else if (value == "nucleoCaudado") {
+                      circles.attr("cy", (d) => y(+d.aseg_caudatetotal))
+                    }
+                    else if (value == "putamen") {
+                      circles.attr("cy", (d) => y(+d.aseg_putamentotal))
+                    }
+                    else if (value == "amigdala") {
+                      circles.attr("cy", (d) => y(+d.aseg_amigdalatotal))
+                    }
+                    
+                  }
+                  evaluateCirclesCx(valSel1)
+                  evaluateCirclesCy(valSel2)
+                  //circles.attr("cy", (d) => y(+d.aseg_hipocampototal))
 
                   function highlightBrushedCircles() {
 
@@ -181,7 +331,7 @@
                       if (d_brushed.length > 0) {
                           clearTableRows();
                           d_brushed.forEach(d_row => populateTableRow(d_row))
-                          drawLineChart(d_brushed);
+                          //drawLineChart(d_brushed);
                       } else {
                           clearTableRows();
                       }
@@ -219,11 +369,11 @@
                   d3.select("table").style("visibility", "visible");
               }
 
-              function showGender(gender){
-                  if(gender==1){
-                    return "Hombre";
-                  }else if(gender==2){
-                    return "Mujeres";
+              function showGender(prematuro){
+                  if(prematuro==0){
+                    return "No es prematuro";
+                  }else if(prematuro==1){
+                    return "Es prematuro";
                   }
               }
 
@@ -231,9 +381,9 @@
                   
                   showTableColNames();
 
-                  var d_row_filter = [showGender(d_row.BIRTH_sexo5), 
-                                      (d_row.BIRTH_peso5), 
-                                      (d_row.BIRTH_talla5)];
+                  var d_row_filter = [showGender(d_row.Pretermino), 
+                                      (d_row.aseg_cerveletWMtotal), 
+                                      (d_row.aseg_cerveletGMtotal)];
 
                   d3.select("table")
                     .append("tr")
@@ -247,7 +397,7 @@
                     
               }
 
-              function drawLineChart(data) {
+              /*function drawLineChart(data) {
 
                   let margin = { left: 20, bottom: 20, right: 20, top: 20 }
 
@@ -286,33 +436,12 @@
                       .attr("transform", `translate(${margin.left},${margin.top})`)
                       .call(d3.axisLeft(yScale).ticks(5))
 
-              }
+              }*/
 
           </script>
 
         </div>
-        <div class="row">
-            <div class="col">
-              <h4>Seleccione el primer parámetro:</h4>
-              <div>
-                <select name="select">
-                  <option value="value1">Value 1</option>
-                  <option value="value2">Value 2</option>
-                  <option value="value3">Value 3</option>
-                </select>
-              </div>
-            </div>
-            <div class="col">
-              <h4>Seleccione el segundo parámetro:</h4>
-              <div>
-                <select name="select">
-                  <option value="value1">Value 1</option>
-                  <option value="value2">Value 2</option>
-                  <option value="value3">Value 3</option>
-                </select>
-              </div>
-            </div>
-        </div>
+        
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 </body>
