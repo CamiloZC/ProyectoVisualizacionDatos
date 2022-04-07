@@ -13,14 +13,27 @@
         table {
             visibility: hidden;
             position: absolute;
-            top: 30px;
-            left: 500px;
             font-family: sans-serif;
             font-size: 0.7em;
         }
 
+        #tooltip {
+            position: fixed;
+            top: 10px;
+            left: 0px;
+            padding: 5px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: solid 1px black;
+            display: none;
+        }
+
         tr:nth-child(even) {
             background-color: #d9d9d9;
+        }
+
+        th, td {
+            width: 150px;
+            text-align: left;
         }
 
         .brushed {
@@ -41,6 +54,7 @@
             Proyecto de Visualización de Datos
           </h1>
         </div>
+        <br>
         <div class="row">
           <div class="col">
             <h4>Seleccione el primer parámetro:</h4>
@@ -76,19 +90,7 @@
           <div id = "charParent" class="col">
             <!--viz-->
             <div id="chart"></div>
-          </div>
-
-          <div class="col">
-            <!--table for data of brushed elements-->
-            <div id="table">
-                <table>
-                    <tr>
-                        <th>Género </th>
-                        <th>Peso (g) </th> 
-                        <th>Estatura (mm) </th> 
-                    </tr>
-                </table>
-            </div>
+            <div id="tooltip">Tooltip</div>
           </div>
 
           <div class="col">
@@ -99,7 +101,23 @@
                   <path style="stroke: black" />
               </g>
             </div>
-          </div>  
+          </div>
+          
+        <div class="row">
+          <div class="col">
+            <!--table for data of brushed elements-->
+            <div id="table">
+                <table>
+                    <tr>
+                        <th>Id</th>
+                        <th>Prematuro</th>
+                        <th>Peso recién nacido (g)</th> 
+                        <th>Peso al año (g)</th> 
+                    </tr>
+                </table>
+            </div>
+          </div>
+        </div>
 
           <script src="https://d3js.org/d3.v4.min.js"></script>
 
@@ -234,7 +252,7 @@
                     .call(axis_y);
 
                   var color = d3.scaleOrdinal()
-                    .domain(["0", "1"])
+                    .domain(["1", "2"])
                     .range([ "#001AFF", "#DD00FF"])
 
                   d3.select("#axis_x")
@@ -256,7 +274,7 @@
                                   //.attr("cx", (d) => x(+d.aseg_cerveletWMtotal))
                                   //.attr("cy", (d) => y(+d.aseg_cerveletGMtotal))
                                   .attr("class", "non_brushed")
-                                  .style("fill", function (d) { return color(d.Pretermino) });
+                                  .style("fill", function (d) { return color(d.BIRTH_sexo5) });
                   
                   
                   
@@ -382,11 +400,11 @@
                   d3.select("table").style("visibility", "visible");
               }
 
-              function showGender(prematuro){
+              function isPretermino(prematuro){
                   if(prematuro==0){
-                    return "No es prematuro";
+                    return "No";
                   }else if(prematuro==1){
-                    return "Es prematuro";
+                    return "Sí";
                   }
               }
 
@@ -394,9 +412,10 @@
                   
                   showTableColNames();
 
-                  var d_row_filter = [showGender(d_row.Pretermino), 
-                                      (d_row.aseg_cerveletWMtotal), 
-                                      (d_row.aseg_cerveletGMtotal)];
+                  var d_row_filter = [(d_row.id),
+                                      isPretermino(d_row.Pretermino), 
+                                      (d_row.BIRTH_peso5), 
+                                      (d_row.FOLL12M_peso12)];
 
                   d3.select("table")
                     .append("tr")
@@ -409,6 +428,7 @@
                     .text(d => d);
                     
               }
+
 
               /*function drawLineChart(data) {
 
