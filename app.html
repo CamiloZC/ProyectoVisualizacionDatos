@@ -73,7 +73,7 @@
           </div>
       </div>
         <div class="row">
-          <div class="col">
+          <div id = "charParent" class="col">
             <!--viz-->
             <div id="chart"></div>
           </div>
@@ -111,39 +111,51 @@
               var valSel2 = document.getElementById("selection2").value
               console.log(valSel1)
               console.log(valSel2)
-
-
-              var margin = {top: 20, right: 0, bottom: 50, left: 85},
-                  svg_dx = 500, 
-                  svg_dy = 400,
-                  plot_dx = svg_dx - margin.right - margin.left,
-                  plot_dy = svg_dy - margin.top - margin.bottom;
-
-              var x = d3.scaleLinear().range([margin.left, plot_dx]),
-                  y = d3.scaleLinear().range([plot_dy, margin.top]);
-
-              timeline.attr("height", svg_dy)
-              timeline.attr("width", svg_dx)
+              var d_extent_x;
+              var d_extent_y;
+              var circles;
               
-              let selected = undefined;
-
               function selectDataToUse(){
                 valSel1 = document.getElementById("selection").value
                 valSel2 = document.getElementById("selection2").value
+                var div = document.getElementById("chart")
+                div.remove()
+                div = document.createElement("div")
+                div.setAttribute('id', 'chart') 
+                var charParent = document.getElementById("charParent")
+                charParent.appendChild(div)
+
+                
+                main()
+
               }
 
+
+
+              
+
+              function main () {
+                  var margin = {top: 20, right: 0, bottom: 50, left: 85},
+                    svg_dx = 600, 
+                    svg_dy = 400,
+                    plot_dx = svg_dx - margin.right - margin.left,
+                    plot_dy = svg_dy - margin.top - margin.bottom;
+
+                var x = d3.scaleLinear().range([margin.left, plot_dx]),
+                    y = d3.scaleLinear().range([plot_dy, margin.top]);
+
+                timeline.attr("height", svg_dy)
+                timeline.attr("width", svg_dx)
+                
+                let selected = undefined;
+
+              
               var svg = d3.select("#chart")
                           .append("svg")
                           .attr("width", svg_dx)
                           .attr("height", svg_dy);
-
-              
-
               d3.csv("data.csv", d => {
 
-                  var d_extent_x;
-                  var d_extent_y;
-                  var circles;
                   
                   var n = d.length;
                   
@@ -228,12 +240,12 @@
                   d3.select("#axis_x")
                     .append("text")
                     .attr("transform", "translate(360, -10)")
-                    .text("Peso recién nacido (g)");
+                    .text(document.getElementById("selection").options[document.getElementById("selection").selectedIndex].text);
 
                   d3.select("#axis_y")
                     .append("text")
                     .attr("transform", "rotate(-90) translate(-20, 15)")
-                    .text("Estatura recién nacido (mm)");
+                    .text(document.getElementById("selection2").options[document.getElementById("selection2").selectedIndex].text);
 
                  circles = svg.append("g")
                                   .selectAll("circle")
@@ -343,7 +355,8 @@
 
                   svg.append("g")
                     .call(brush);
-              });
+              });                
+              }
 
               function clearTableRows() {
 
